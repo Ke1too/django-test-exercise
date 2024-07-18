@@ -27,6 +27,12 @@
     </form>
     <br>
 
+    <form method="GET" action="{% url 'index' %}">
+      <input type="text" name="q" placeholder="Search tasks...">
+      <button type="submit">Search</button>
+    </form>
+    <br>
+
     <div>
       <a href="{% url 'index' %}?order=due">Sort by Due Date</a> |
       <a href="{% url 'index' %}?order=post">Sort by Posted Date</a>
