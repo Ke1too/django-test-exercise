@@ -1,7 +1,10 @@
-from django.shortcuts import render, redirect
+from datetime import datetime
+
 from django.http import Http404
-from django.utils.timezone import make_aware
+from django.shortcuts import redirect, render
 from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
+
 from todo.models import Task
 from django.db.models import Q
 
@@ -64,11 +67,13 @@ def delete(request, task_id):
     task.delete()
     return redirect(index)
 
+
 def close(request, task_id):
     try:
         task = Task.objects.get(pk=task_id)
     except Task.DoesNotExist:
         raise Http404("Task does not exist")
     task.completed = True
+    task.completed_at = make_aware(datetime.now())
     task.save()
     return redirect(index)

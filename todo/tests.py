@@ -1,6 +1,9 @@
-from django.test import TestCase, Client
-from django.utils import timezone
 from datetime import datetime
+from datetime import timezone as tz
+
+from django.test import Client, TestCase
+from django.utils import timezone
+
 from todo.models import Task
 
 
@@ -119,12 +122,24 @@ class TodoViewTestCase(TestCase):
         task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
         task.save()
         client = Client()
-        response = client.get('/{}/close'.format(task.pk))
+        response = client.get("/{}/close".format(task.pk))
+        response_time = datetime.now(tz.utc)
 
-        self.assertRedirects(response, "/", status_code=302, target_status_code=200, fetch_redirect_response=True)
+        self.assertRedirects(
+            response,
+            "/",
+            status_code=302,
+            target_status_code=200,
+            fetch_redirect_response=True,
+        )
 
         task = Task.objects.get(pk=task.pk)
         self.assertTrue(task.completed)
+        # microsecondまで比較してしまうとテストのプログラムの実行時間によってテストが失敗してしまうので、microsecondは無視する
+        self.assertEqual(
+            task.completed_at.replace(microsecond=0),
+            response_time.replace(microsecond=0),
+        )
 
     def test_close_get_fail(self):
         client = Client()
