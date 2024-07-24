@@ -23,6 +23,7 @@ class TaskModelTestCase(TestCase):
         self.assertEqual(task.title, 'task1')
         self.assertFalse(task.completed)
         self.assertEqual(task.due_at, due)
+        self.assertEqual(task.status, 'Not Completed')
 
     def test_create_task2(self):
         task = Task(title='task2')
@@ -117,17 +118,21 @@ class TodoViewTestCase(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-
     def test_close_get_success(self):
-        task = Task(title='task1', due_at=timezone.make_aware(datetime(2024, 7, 1)))
+        task = Task(
+            title='task1',
+            due_at=timezone.make_aware(
+                datetime.now() + timezone.timedelta(days=1), timezone=tz.utc
+            ),
+        )
         task.save()
         client = Client()
-        response = client.get("/{}/close".format(task.pk))
+        response = client.get('/{}/close'.format(task.pk))
         response_time = datetime.now(tz.utc)
 
         self.assertRedirects(
             response,
-            "/",
+            '/',
             status_code=302,
             target_status_code=200,
             fetch_redirect_response=True,
@@ -135,6 +140,7 @@ class TodoViewTestCase(TestCase):
 
         task = Task.objects.get(pk=task.pk)
         self.assertTrue(task.completed)
+        self.assertEqual(task.status, 'Completed')
         # microsecondまで比較してしまうとテストのプログラムの実行時間によってテストが失敗してしまうので、microsecondは無視する
         self.assertEqual(
             task.completed_at.replace(microsecond=0),
@@ -146,3 +152,36 @@ class TodoViewTestCase(TestCase):
         response = client.get('/1/close')
 
         self.assertEqual(response.status_code, 404)
+
+    def test_close_late_get_success(self):
+        task = Task(
+            title='task1',
+            due_at=timezone.make_aware(
+                datetime.now() - timezone.timedelta(days=1), timezone=tz.utc
+            ),
+        )
+        print()
+        task.save()
+        client = Client()
+        response = client.get('/{}/close'.format(task.pk))
+        response_time = datetime.now(tz.utc)
+
+        self.assertRedirects(
+            response,
+            '/',
+            status_code=302,
+            target_status_code=200,
+            fetch_redirect_response=True,
+        )
+
+        task = Task.objects.get(pk=task.pk)
+        print(task.due_at)
+        print(task.completed_at)
+        print(task.is_overdue(task.completed_at))
+        self.assertTrue(task.completed)
+        self.assertEqual(task.status, 'Completed Late')
+        # microsecondまで比較してしまうとテストのプログラムの実行時間によってテストが失敗してしまうので、microsecondは無視する
+        self.assertEqual(
+            task.completed_at.replace(microsecond=0),
+            response_time.replace(microsecond=0),
+        )
