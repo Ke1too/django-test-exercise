@@ -14,3 +14,11 @@ class Task(models.Model):
         if self.due_at is None:
             return False
         return self.due_at < dt
+
+    @property
+    def status(self):
+        if self.completed_at is None:
+            return "Not Completed"
+        if self.is_overdue(self.completed_at):
+            return "Completed Late"
+        return "Completed"
