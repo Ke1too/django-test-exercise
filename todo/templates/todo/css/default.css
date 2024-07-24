@@ -1,0 +1,42 @@
+h1 {
+    color: #ffffff;
+    background-color: #17194c;
+    padding: 10px;
+}
+
+body {
+    background-color: rgb(219, 242, 255);
+}
+
+.text {
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+form {
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px 0;
+}
+
+.btn-link {
+    display: inline-block;
+    background-color: #00bfff;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.btn-link:hover {
+    background-color: #009acd;
+}
